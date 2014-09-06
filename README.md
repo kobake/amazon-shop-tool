@@ -6,16 +6,22 @@ Command line tools for amazon web shop
 
 Requirements
 ------------
-- PhantomJS
+- node.js
+
+
+Installation
+------------
+
+	$ git clone git@github.com:kobake/amazon-shop-tool.git
+	$ cd amazon-shop-tool
+	$ npm install
+	$ chmod +x amazon-order-history
 
 
 Usage: amazon-order-history
 ---------------------------
 Print your all order history as csv format.
 
-	$ git clone git@github.com:kobake/amazon-shop-tool.git
-	$ cd amazon-shop-tool
-	$ chmod +x amazon-order-history
 	$ ./amazon-order-history
 	Email: (Input your email for amazon.co.jp)
 	Password: (Input your password for amazon.co.jp)
