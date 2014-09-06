@@ -1,0 +1,21 @@
+#!/bin/sh
+# Usage: amazon-order-history
+
+# -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- #
+# User information
+# -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- #
+# Email
+echo -n "Email: "
+read mail
+# echo "<<$mail>>"
+
+# Password
+read -sp "Password: " pass
+tty -s && echo
+# echo "<<$pass>>"
+
+# -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- #
+# Launch PhantomJS
+# -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- #
+dir=$(cd $(dirname $0);pwd)
+phantomjs "$dir/js/index.js" "$mail" "$pass"
