@@ -1,5 +1,10 @@
 // Usage: phantomjs index.js <mail> <pass>
 
+// debug log
+function debug_log(msg){
+	// console.log(msg);
+}
+
 // コマンドライン引数受け取り
 var system = require('system');
 var args = system.args; // [0] ScriptName  [1] Arg  [2] Arg  ...
@@ -11,8 +16,8 @@ if (args.length < 3) {
 }
 var mail = args[1];
 var pass = args[2];
-console.log("E: " + mail);
-console.log("P: " + 'xxxx');
+debug_log("E: " + mail);
+debug_log("P: " + 'xxxx');
 
 // エンジン準備
 var page = require('webpage').create();
@@ -22,26 +27,26 @@ if(true){
 		page.reason = resourceError.errorString;
 		page.reason_url = resourceError.url;
 		if(resourceError.errorString === 'Operation canceled')return;
-		console.log("-- onResourceError --");
-		console.log(resourceError.errorString);
-		console.log(resourceError.url);
+		debug_log("-- onResourceError --");
+		debug_log(resourceError.errorString);
+		debug_log(resourceError.url);
 		// phantom.exit(1);
 	};
 
 	// confirmが出たらOKを押す
 	page.onConfirm = function (msg) {
-		console.log('CONFIRM: ' + msg);
+		debug_log('CONFIRM: ' + msg);
 		return true; // `true` === pressing the "OK" button, `false` === pressing the "Cancel" button
 	};
 
 	// alertが出たら記録
 	page.onAlert = function(msg) {
-		console.log('ALERT: ' + msg);
+		debug_log('ALERT: ' + msg);
 	};
 
 	// console.logをすべて手前に転送する (これでevaluate内のconsole.logも表示される)
 	page.onConsoleMessage = function (msg) {
-		console.log("CONSOLE: " + msg);
+		console.log(msg);
 	};
 
 	// 画面サイズ
@@ -50,12 +55,12 @@ if(true){
 
 // 初回オープン（サインイン)
 function step1(){
-	console.log("-- step1 --");
+	debug_log("-- step1 --");
 	var url = 'https://www.amazon.co.jp/gp/css/order-history';
 	page.open(url,
 		function () {
-			console.log("render.");
-			page.render("a.png");
+			// debug_log("render.");
+			// page.render("a.png");
 			// 次の条件
 			page.onLoadFinished = function () {
 				step2();
@@ -78,7 +83,6 @@ function step2(){
 		var years = [];
 		jQuery('#orderFilter option').each(function(){
 			var year = jQuery(this).text().trim();
-			if(year === '2014年')return;
 			if(year.match(/年$/)){
 				years.push(year);
 			}
@@ -92,7 +96,7 @@ function step2(){
 
 // サインイン後の画面（注文履歴）
 function step3(year_index, page_index){
-	console.log("-- step3 --");
+	debug_log("-- step3 --");
 
 	// すべての年の処理が完了していたらプログラム終了
 	if(year_index >= years.length){
@@ -105,7 +109,7 @@ function step3(year_index, page_index){
 	// 年選択
 	if(page_index === 0){
 		// 年ラベル
-		console.log("========== " + year + " ==========");
+		debug_log("========== " + year + " ==========");
 
 		// 次の条件
 		page.onLoadFinished = function () {
@@ -123,15 +127,18 @@ function step3(year_index, page_index){
 		// 記録
 		page.evaluate(function(){
 			jQuery('.action-box').each(function(){
-				console.log("--------------------");
-				var item = jQuery(this);
-				console.log(item.find('.order-level .info-data a').text().trim()); // 注文番号
-				console.log(item.find('.order-level h2').text().trim()); // 日付
-				console.log(item.find('.item-title').text().trim()); // タイトル
-				console.log(item.find('.order-level .price').text().trim()); // 価格
-				console.log(item.find('.order-level .top-text').text().trim()); // 状態
-				console.log(item.find('.order-level .info-data.recipient').text().trim()); // 受取人
-				console.log(item.find('.product-group-name').text().trim()); // Kindle or not
+				var text = '';
+				var order = jQuery(this);
+				text = order.find('.order-level .info-data a').text().trim(); // 注文番号
+				text += "," + order.find('.order-level h2').text().trim(); // 日付
+				text += "," + order.find('.order-level .price').text().trim().replace(/[ ,]/g, ''); // 価格
+				text += "," + order.find('.order-level .top-text').text().trim(); // 状態
+				text += "," + order.find('.order-level .info-data.recipient').text().trim(); // 受取人
+				order.find('.ship-listing .shipment > li').each(function(){
+					var item = jQuery(this);
+					text += "," + item.find('.item-title').text().trim(); // タイトル
+				});
+				console.log(text);
 			});
 		});
 
