@@ -18,4 +18,6 @@ tty -s && echo
 # Launch PhantomJS
 # -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- #
 dir=$(cd $(dirname $0);pwd)
-phantomjs "$dir/js/index.js" "$mail" "$pass"
+phantomjs="$dir/node_modules/phantomjs/bin/phantomjs"
+"$phantomjs" "$dir/js/index.js" "$mail" "$pass"
+
