@@ -15,14 +15,13 @@ Installation
 	$ git clone git@github.com:kobake/amazon-shop-tool.git
 	$ cd amazon-shop-tool
 	$ npm install
-	$ chmod +x amazon-order-history
 
 
 Usage: amazon-order-history
 ---------------------------
 Print your all order history as csv format.
 
-	$ ./amazon-order-history
+	$ npm start
 	Email: (Input your email for amazon.co.jp)
 	Password: (Input your password for amazon.co.jp)
 
