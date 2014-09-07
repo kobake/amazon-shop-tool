@@ -10,7 +10,7 @@ var system = require('system');
 var args = system.args; // [0] ScriptName  [1] Arg  [2] Arg  ...
 if (args.length < 3) {
 	console.log(
-		'Usage: phantomjs mapcap.js <email> <password>'
+		'Usage: phantomjs index.js <email> <password>'
 	);
 	Util.exit(1);
 }
