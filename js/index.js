@@ -12,7 +12,7 @@ if (args.length < 3) {
 	console.log(
 		'Usage: phantomjs index.js <email> <password>'
 	);
-	Util.exit(1);
+	phantom.exit(1);
 }
 var mail = args[1];
 var pass = args[2];
