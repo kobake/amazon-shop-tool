@@ -3,6 +3,10 @@ amazon-shop-tool
 
 Command line tools for amazon web shop
 
+Related article
+---------------
+- [PhantomJS で Amazon の注文履歴を漁る - clock-up-blog](http://blog.clock-up.jp/entry/2014/09/07/phantomjs-amazon)
+
 
 Requirements
 ------------
