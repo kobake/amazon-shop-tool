@@ -5,7 +5,6 @@
     "phantomjs": ">=1.9.0"
   },
   "scripts": {
-    "postinstall": "chmod +x amazon-order-history",
-    "start": "./amazon-order-history"
+    "postinstall": "chmod +x amazon-order-history"
   }
 }
