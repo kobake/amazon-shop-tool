@@ -19,5 +19,5 @@ tty -s && echo
 # -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- #
 dir=$(cd $(dirname $0);pwd)
 phantomjs="$dir/node_modules/phantomjs/bin/phantomjs"
-"$phantomjs" "$dir/js/index.js" "$mail" "$pass"
+"$phantomjs" --ssl-protocol=any "$dir/js/index.js" "$mail" "$pass"
 

@@ -2,18 +2,20 @@
 
 // debug log
 function debug_log(msg){
-	// console.log(msg);
+	console.log(msg);
 }
 
 // コマンドライン引数受け取り
 var system = require('system');
 var args = system.args; // [0] ScriptName  [1] Arg  [2] Arg  ...
+/*
 if (args.length < 3) {
 	console.log(
 		'Usage: phantomjs index.js <email> <password>'
 	);
 	phantom.exit(1);
 }
+*/
 var mail = args[1];
 var pass = args[2];
 debug_log("E: " + mail);
@@ -45,8 +47,12 @@ if(true){
 	};
 
 	// console.logをすべて手前に転送する (これでevaluate内のconsole.logも表示される)
+	var render_index = 0;
 	page.onConsoleMessage = function (msg) {
 		console.log(msg);
+		if(msg === 'render'){
+			page.render((render_index++) + ".png");
+		}
 	};
 
 	// 画面サイズ
@@ -59,18 +65,43 @@ function step1(){
 	var url = 'https://www.amazon.co.jp/gp/css/order-history';
 	page.open(url,
 		function () {
-			// debug_log("render.");
-			// page.render("a.png");
-			// 次の条件
-			page.onLoadFinished = function () {
-				step2();
-			};
-			// サインイン
-			page.evaluate(function(mail, pass){
-				jQuery('#ap_email').val(mail);
-				jQuery('#ap_password').val(pass);
-				jQuery('#signInSubmit-input').click();
-			}, mail, pass);
+			page.includeJs("https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js", function() {
+				page.evaluate(function(){
+					jQuery.noConflict();
+				});
+				// debug_log("render.");
+				// page.render("a.png");
+				// 次の条件
+				console.log("step1-1");
+				page.render('step1-1.png');
+				page.onLoadFinished = function () {
+					page.onLoadFinished = null;
+					step2();
+				};
+				// サインイン
+				console.log("step1-2");
+				page.render('step1-2.png');
+				page.evaluate(function (mail, pass) {
+					setTimeout(function () {
+						console.log("input email");
+						jQuery('#ap_email').val(mail);
+						console.log("render");
+					}, 100);
+					setTimeout(function () {
+						console.log("input password");
+						jQuery('#ap_password').val(pass);
+						console.log("render");
+					}, 200);
+					setTimeout(function () {
+						console.log("input submit");
+						// jQuery('#ap_signin_form').submit();
+						jQuery('#signInSubmit-input').click();
+						console.log("render");
+					}, 500);
+				}, mail, pass);
+				console.log("step1-3");
+				page.render('step1-3.png');
+			});
 		}
 	);
 }
@@ -78,20 +109,93 @@ function step1(){
 // サインイン後の画面（注文履歴）
 var years = [];
 function step2(){
-	// 候補年リスト
-	years = page.evaluate(function(){
-		var years = [];
-		jQuery('#orderFilter option').each(function(){
-			var year = jQuery(this).text().trim();
-			if(year.match(/年$/)){
-				years.push(year);
+	console.log("step2-1");
+	page.render('step2-1.png');
+
+	// jquery
+	console.log("including jQuery...");
+	setTimeout(function(){
+		var cnt = 0;
+		page.includeJs("https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js", function(){
+			page.evaluate(function(){
+				jQuery.noConflict();
+			});
+			if(cnt++ > 0)return; // 重複防止
+			console.log("jQuery included.");
+			page.evaluate(function(){
+				jQuery.noConflict();
+			});
+			console.log("no conflict ok.");
+
+			// 実験
+			console.log("---- Jikken3 ----");
+			page.evaluate(function(){
+				var i = 0;
+				jQuery('a').each(function(){
+					if(i++ > 5)return;
+					var href = jQuery(this).attr('href');
+					console.log(href);
+				});
+			});
+			console.log("---- /jikken ----");
+
+			// CSSパス
+			/*
+			function ElementCssPath(e){
+				var rightArrowParents = [];
+				e.parents().not('html').each(function() {
+					var entry = this.tagName.toLowerCase();
+					if (this.className) {
+						entry += "." + this.className.replace(/ /g, '.');
+					}
+					if(this.id){
+						entry += "#" + this.id;
+					}
+					rightArrowParents.push(entry);
+				});
+				rightArrowParents.reverse();
+				return rightArrowParents.join(" ");
 			}
+			*/
+
+			// 候補年リスト
+			years = page.evaluate(function(){
+				console.log("-----------hoge1");
+				jQuery('option').each(function(){
+					var t = jQuery(this).text().trim();
+					//console.log(t + "    " + ElementCssPath(jQuery(this)));
+				});
+				console.log("-----------hoge2");
+				jQuery('a').each(function(){
+					var t = jQuery(this).text().trim();
+					//console.log(t + "    " + ElementCssPath(jQuery(this)));
+				});
+				console.log("-----------hoge3");
+				var years = [];
+				jQuery('#timePeriodForm option').each(function(){
+					console.log("hoge1");
+					var year = jQuery(this).text().trim();
+					if(year.match(/年$/)){
+						years.push(year);
+					}
+				});
+				return years;
+			});
+
+			// 年確認
+			console.log("--years--");
+			console.log(years);
+			console.log("---------")
 		});
-		return years;
-	});
+	}, 1000);
+
 
 	// 最初の年について処理 (それ以降の年は再帰呼び出しで発行)
-	step3(0, 0);
+	setTimeout(function(){
+		console.log("----goto step3");
+		step3(0, 0);
+	}, 3000);
+
 }
 
 // サインイン後の画面（注文履歴）
@@ -113,30 +217,37 @@ function step3(year_index, page_index){
 
 		// 次の条件
 		page.onLoadFinished = function () {
-			step3(year_index, page_index + 1);
+			page.onLoadFinished = null;
+			page.includeJs("https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js", function(){
+				page.evaluate(function(){
+					jQuery.noConflict();
+				});
+				step3(year_index, page_index + 1);
+			});
 		};
 
 		// 年選択
 		page.evaluate(function(year){
-			jQuery('#orderFilter').val(year);
-			jQuery('#order-dropdown-form input[type="submit"]').click();
+			jQuery('select.a-native-dropdown[name=orderFilter]').val('year-' + parseInt(year));
+			jQuery('#timePeriodForm').submit();
 		}, year);
 	}
 	// ページめくり
 	else{
 		// 記録
+		console.log("----kiroku");
 		page.evaluate(function(){
-			jQuery('.action-box').each(function(){
+			jQuery('.order').each(function(){
 				var text = '';
 				var order = jQuery(this);
-				text = order.find('.order-level .info-data a').text().trim(); // 注文番号
-				text += "," + order.find('.order-level h2').text().trim(); // 日付
-				text += "," + order.find('.order-level .price').text().trim().replace(/[ ,]/g, ''); // 価格
-				text += "," + order.find('.order-level .top-text').text().trim(); // 状態
-				text += "," + order.find('.order-level .info-data.recipient').text().trim(); // 受取人
-				order.find('.ship-listing .shipment > li').each(function(){
+				text = order.find('.a-col-right .value').text().trim(); // 注文番号
+				text += "," + order.find('.a-span3 .value').text().trim(); // 日付
+				text += "," + order.find('.a-span2 .value').text().trim().replace(/[ ,]/g, ''); // 価格
+				text += "," + order.find('.shipment-top-row .a-text-bold:first').text().trim(); // 状態
+				text += "," + order.find('.a-span7 .value').text().trim(); // 受取人
+				order.find('.a-row > .a-link-normal').each(function(){
 					var item = jQuery(this);
-					text += "," + item.find('.item-title').text().trim(); // タイトル
+					text += "," + item.text().trim(); // タイトル
 				});
 				console.log(text);
 			});
@@ -144,13 +255,19 @@ function step3(year_index, page_index){
 
 		// 次の条件
 		page.onLoadFinished = function () {
-			step3(year_index, page_index + 1);
+			page.onLoadFinished = null;
+			page.includeJs("https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js", function() {
+				page.evaluate(function(){
+					jQuery.noConflict();
+				});
+				step3(year_index, page_index + 1);
+			});
 		};
 
 		// 次ページ
 		var next = page.evaluate(function(){
 			// 次ページ
-			var next = jQuery('div.pagination-box a:contains("次へ")');
+			var next = jQuery('li.a-last a:contains("次へ")');
 			if(next.size() == 1){
 				location.href = next.attr('href');
 				return true;
