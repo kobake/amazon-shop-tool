@@ -72,15 +72,15 @@ function step1(){
 				// debug_log("render.");
 				// page.render("a.png");
 				// 次の条件
-				console.log("step1-1");
-				page.render('step1-1.png');
+				// console.log("step1-1");
+				// page.render('step1-1.png');
 				page.onLoadFinished = function () {
 					page.onLoadFinished = null;
 					step2();
 				};
 				// サインイン
-				console.log("step1-2");
-				page.render('step1-2.png');
+				// console.log("step1-2");
+				// page.render('step1-2.png');
 				page.evaluate(function (mail, pass) {
 					setTimeout(function () {
 						console.log("input email");
@@ -99,8 +99,8 @@ function step1(){
 						console.log("render");
 					}, 500);
 				}, mail, pass);
-				console.log("step1-3");
-				page.render('step1-3.png');
+				// console.log("step1-3");
+				// page.render('step1-3.png');
 			});
 		}
 	);
@@ -109,8 +109,8 @@ function step1(){
 // サインイン後の画面（注文履歴）
 var years = [];
 function step2(){
-	console.log("step2-1");
-	page.render('step2-1.png');
+	// console.log("step2-1");
+	// page.render('step2-1.png');
 
 	// jquery
 	console.log("including jQuery...");
