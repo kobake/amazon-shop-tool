@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "dependencies": {
     "phantomjs": ">=1.9.0"
+  },
+  "scripts": {
+    "postinstall": "chmod +x amazon-order-history"
   }
 }
